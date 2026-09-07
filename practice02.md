@@ -230,3 +230,44 @@ docker update --cpus="1.0" <container_id>
 docker run --cpus="1.0" --memory="512m" my-app
 ```
 
+
+### Question 9/10 — Networking 🌐
+
+**Your application server can successfully connect to an external API by IP:**
+
+curl http://10.20.30.40:8080
+
+**But this fails:**
+
+curl http://api.example.com:8080
+
+The application itself is healthy.
+
+**What could be causing this, and what commands would you use to troubleshoot it?**
+
+**give me the interview answer**
+
+```
+Here’s how I’d answer this in an interview:
+
+“Since the server can connect to the API using its IP address but not the hostname, I would first suspect a DNS resolution issue. I would verify whether api.example.com resolves correctly using commands like nslookup, dig, or getent hosts.
+
+If DNS resolution fails, I would check the server's DNS configuration in /etc/resolv.conf and verify connectivity to the configured DNS server.
+
+If the hostname resolves to an IP successfully, I would compare that IP with 10.20.30.40 and then test connectivity to the resolved address using curl, nc, or telnet. I would also check whether there is any proxy, firewall, or network policy affecting hostname-based access.
+
+So my troubleshooting flow would be: DNS resolution → verify resolved IP → test connectivity → check firewall/proxy/network configuration → check application logs if necessary.”
+
+Useful commands:
+
+nslookup api.example.com
+dig api.example.com
+getent hosts api.example.com
+
+cat /etc/resolv.conf
+
+nc -zv api.example.com 8080
+curl -v http://api.example.com:8080
+
+Interview tip: The key observation is “IP works, hostname fails” → investigate DNS first.
+```
