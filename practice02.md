@@ -271,3 +271,40 @@ curl -v http://api.example.com:8080
 
 Interview tip: The key observation is “IP works, hostname fails” → investigate DNS first.
 ```
+
+#### One important correction: with a 502 Bad Gateway, Nginx itself is usually reachable and running; the more likely issue is that Nginx cannot communicate with its upstream backend.
+
+A stronger troubleshooting flow:
+```
+nginx -t
+systemctl status nginx
+tail -f /var/log/nginx/error.log
+```
+Then check the upstream configuration:
+```
+grep -R "proxy_pass" /etc/nginx/
+```
+Verify the backend is actually running and listening:
+```
+ss -tulnp
+systemctl status <backend-service>
+curl http://127.0.0.1:<backend-port>
+```
+If the backend is on another server/container, test:
+
+```
+curl http://<backend-ip>:<port>
+nc -zv <backend-ip> <port>
+```
+
+Then investigate:
+
+Wrong proxy_pass address/port
+Backend service down
+Backend listening only on 127.0.0.1
+Docker/Kubernetes networking/DNS
+Firewall/security group
+Backend timeout
+Recent configuration/deployment changes
+
+Your nc localhost 80 check isn't particularly useful here because Nginx is already confirmed to be running; I'd focus on the Nginx → upstream backend path.
